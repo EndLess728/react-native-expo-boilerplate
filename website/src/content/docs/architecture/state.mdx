@@ -1,0 +1,94 @@
+---
+title: State management
+description: Zustand or Redux Toolkit in the React Native Expo Boilerplate, persisted to encrypted MMKV, with screens that never depend on the state library.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Server data (lists, details, anything from your API) lives in **TanStack Query**, see [API layer](../api-layer/). The state library is for app state: the session, settings and preferences.
+
+## The rule: screens use hooks, not stores
+
+Each feature keeps its store private and exports hooks instead. For auth:
+
+| Hook | Returns |
+| --- | --- |
+| `useIsLoggedIn()` | `boolean` |
+| `useCurrentUser()` | the current `User` or `null` |
+| `useLogin()` | `{ login(credentials), isLoading }`, and shows a success toast |
+| `useLogout()` | a `logout()` function |
+
+```tsx
+import { useIsLoggedIn, useLogout } from '@/features/auth';
+```
+
+Because UI only touches these hooks, the CLI can swap Zustand for Redux without changing a screen, and you can too.
+
+<Tabs syncKey="state">
+<TabItem label="Zustand">
+
+Stores are created with `createPersistedStore()` from `src/store/createPersistedStore.ts`. It:
+
+- persists to encrypted MMKV through a Zustand storage adapter,
+- uses `skipHydration: true`, so stores can be created at import time, before storage is ready,
+- is rehydrated explicitly by `rehydrateStores()` once storage has opened.
+
+**Adding a store:**
+
+```ts title="src/features/settings/store/useSettingsStore.ts"
+import { createPersistedStore } from '@/store/createPersistedStore';
+
+interface SettingsState {
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
+}
+
+export const useSettingsStore = createPersistedStore<SettingsState>(
+  'settings-storage',
+  (set) => ({
+    theme: 'light',
+    setTheme: (theme) => set({ theme }),
+  }),
+);
+```
+
+Always read with an **atomic selector**, `useSettingsStore((s) => s.theme)`. Calling the hook with no selector subscribes to the whole store and re-renders on every change, so ESLint flags it.
+
+Then register the store, or it will never load its saved state:
+
+```ts title="src/store/index.ts"
+export async function rehydrateStores(): Promise<void> {
+  await useUserStore.persist.rehydrate();
+  await useSettingsStore.persist.rehydrate(); // ← add
+}
+```
+
+</TabItem>
+<TabItem label="Redux Toolkit">
+
+You get a configured store in `src/store/` with:
+
+- **redux-persist** backed by the encrypted MMKV instance (`persistStorage.ts`). Only the session (`isLoggedIn`, `user`) is persisted; request status and errors start fresh.
+- **Typed hooks** `useAppDispatch` and `useAppSelector` in `src/store/hooks.ts`. ESLint makes you use them instead of the untyped ones.
+- An **auth slice** in `src/features/auth/store/`, with async login using **Thunk** (`createAsyncThunk`) or **Saga** (`authSaga.ts`), whichever you picked. Both come with tests.
+
+**Adding a slice:** create it in `src/features/<feature>/store/`, add its reducer to `combineReducers` in `src/store/store.ts` (wrap it in `persistReducer` if it should survive restarts), and expose hooks from the feature's `index.ts`.
+
+```ts title="src/store/store.ts"
+const rootReducer = combineReducers({
+  auth: persistReducer(
+    { key: 'auth', storage: reduxStorage, whitelist: ['isLoggedIn', 'user'] },
+    authReducer,
+  ),
+  settings: settingsReducer, // ← add
+});
+```
+
+With Saga, register new sagas in `src/store/rootSaga.ts`.
+
+</TabItem>
+</Tabs>
+
+## What's persisted
+
+Persisted state goes to MMKV, which is encrypted at rest. Raw passwords are never stored: the auth state keeps only the returned user profile, and tokens are stored separately in `src/storage/token.ts`. See [Storage & security](../storage/).

@@ -59,7 +59,7 @@ const oneOf =
 
 const program = new Command()
   .name('create-expo-boilerplate')
-  .description('Scaffold an Expo app from the React-Native-Expo-Boilterplate.')
+  .description('Scaffold an Expo app from react-native-expo-boilerplate.')
   .version(version)
   .argument('[directory]', 'where to create the project')
   .option('--state <library>', 'zustand | redux', oneOf(CHOICES.state))

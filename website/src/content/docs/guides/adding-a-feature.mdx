@@ -1,0 +1,137 @@
+---
+title: Adding a feature
+description: Step-by-step walkthrough of adding a feature to the React Native Expo Boilerplate, with an API hook, a screen, a route, translations and state.
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This walkthrough adds a **Todos** feature: an API hook, a screen with a list, a route, translations, and a persisted filter. The same steps work for any feature.
+
+<Steps>
+
+1. **Create the folder**
+
+   ```
+   src/features/todos/
+   ├── api/
+   │   ├── types.ts
+   │   └── use-todos.ts
+   ├── screens/
+   │   └── TodosScreen.tsx
+   └── index.ts
+   ```
+
+2. **Add the API hook**
+
+   ```ts title="src/features/todos/api/types.ts"
+   export type Todo = { id: number; todo: string; completed: boolean };
+   export type TodosPage = { todos: Todo[]; total: number; skip: number; limit: number };
+   ```
+
+   ```ts title="src/features/todos/api/use-todos.ts"
+   import { createQuery } from 'react-query-kit';
+   import type { AxiosError } from 'axios';
+
+   import { client } from '@/services';
+
+   import type { TodosPage } from './types';
+
+   export const useTodos = createQuery<TodosPage, void, AxiosError>({
+     queryKey: ['todos'],
+     fetcher: (_, { signal }) => client.get('todos', { signal }).then((r) => r.data),
+   });
+   ```
+
+   DummyJSON has a `todos` endpoint, so this works against the development API as is.
+
+3. **Add translations**
+
+   Add a `todos` section to `en.json`, `es.json` and `ar.json`:
+
+   ```json title="src/localization/translations/en.json"
+   "todos": {
+     "title": "Todos",
+     "empty": "Nothing to do"
+   }
+   ```
+
+4. **Build the screen**
+
+   ```tsx title="src/features/todos/screens/TodosScreen.tsx"
+   import { FlatList, Text } from 'react-native';
+
+   import { useTranslate } from '@/localization/utils';
+   import ScreenWrapper from '@/shared/components/ScreenWrapper';
+   import { useScreenLoader } from '@/shared/hooks';
+   import { TextStyles } from '@/theme';
+
+   import { useTodos } from '../api/use-todos';
+
+   export function TodosScreen() {
+     const t = useTranslate();
+     const { data, isLoading } = useTodos();
+     useScreenLoader(isLoading);
+
+     return (
+       <ScreenWrapper>
+         <Text style={TextStyles.h1}>{t('todos.title')}</Text>
+         <FlatList
+           data={data?.todos ?? []}
+           keyExtractor={(item) => String(item.id)}
+           renderItem={({ item }) => <Text>{item.todo}</Text>}
+           ListEmptyComponent={<Text>{t('todos.empty')}</Text>}
+         />
+       </ScreenWrapper>
+     );
+   }
+   ```
+
+   Inside the feature, imports are relative (`../api/use-todos`).
+
+5. **Export the public API**
+
+   ```ts title="src/features/todos/index.ts"
+   export { TodosScreen } from './screens/TodosScreen';
+   export { useTodos } from './api/use-todos';
+   export type { Todo } from './api/types';
+   ```
+
+6. **Add a route**
+
+   <Tabs syncKey="nav">
+   <TabItem label="Expo Router">
+   ```tsx title="src/app/todos.tsx"
+   export { TodosScreen as default } from '@/features/todos';
+   ```
+   That's the `/todos` route. Navigate with `router.push('/todos')` or `<Link href="/todos">`.
+
+   To make it a **tab** instead, put the file in `src/app/(tabs)/`, add `<Tabs.Screen name="todos" />` to `src/app/(tabs)/_layout.tsx`, and register its icon and label in `TabBarIcon.tsx` and `TabBarLabel.tsx`.
+   </TabItem>
+   <TabItem label="React Navigation">
+   Add the route name to `NAVIGATION` in `src/shared/constants/navigation.ts`, add it to the param list in `src/navigation/types.ts`, then register the screen:
+   ```tsx title="src/navigation/MainTabNavigator.tsx"
+   <Tab.Screen component={TodosScreen} name={NAVIGATION.todos} />
+   ```
+   Add a path for it in `src/navigation/linking.ts` if it should open from a deep link.
+   </TabItem>
+   </Tabs>
+
+7. **Add state (if you need it)**
+
+   For app state that should survive restarts, like a "hide completed" toggle, add a store inside the feature and expose a hook from `index.ts`. See [State management](../../architecture/state/). Remember to register Zustand stores in `rehydrateStores()`.
+
+8. **Test it**
+
+   ```bash
+   yarn lint && yarn type-check && yarn test
+   ```
+
+</Steps>
+
+## Checklist
+
+- [ ] Everything lives in `src/features/<name>/`
+- [ ] Other code imports it only through `index.ts`
+- [ ] API calls use `client` from `@/services` and pass `signal`
+- [ ] Every string is in all three translation files
+- [ ] New Zustand stores are added to `rehydrateStores()`

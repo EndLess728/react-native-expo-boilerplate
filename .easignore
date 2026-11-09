@@ -80,6 +80,7 @@ __tests__/
 .claude/
 .code-review-graph/
 docs/
+website/
 IMPROVEMENT_REPORT.md
 
 # Keep .env.<env> for EAS — they are gitignored but EAS needs them. The

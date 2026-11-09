@@ -1,7 +1,7 @@
 {
   "name": "create-expo-boilerplate",
   "version": "0.1.0",
-  "description": "Scaffold a production-ready Expo app from the React-Native-Expo-Boilterplate, with your choice of state management, navigation, language and tooling.",
+  "description": "Create a production-ready Expo and React Native app in one command: Expo Router or React Navigation, Zustand or Redux Toolkit, Unistyles, StyleSheet or Tailwind, TypeScript or JavaScript.",
   "type": "module",
   "bin": {
     "create-expo-boilerplate": "dist/index.js"
@@ -24,15 +24,33 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EndLess728/React-Native-Expo-Boilterplate.git",
+    "url": "git+https://github.com/EndLess728/react-native-expo-boilerplate.git",
     "directory": "cli"
+  },
+  "homepage": "https://endless728.github.io/react-native-expo-boilerplate/",
+  "bugs": {
+    "url": "https://github.com/EndLess728/react-native-expo-boilerplate/issues"
   },
   "keywords": [
     "expo",
     "react-native",
     "boilerplate",
+    "starter",
     "template",
-    "create"
+    "create",
+    "create-expo-app",
+    "expo-router",
+    "react-navigation",
+    "zustand",
+    "redux-toolkit",
+    "tanstack-query",
+    "unistyles",
+    "tailwind",
+    "uniwind",
+    "typescript",
+    "mmkv",
+    "i18n",
+    "eas"
   ],
   "author": "EndLess728",
   "license": "MIT",

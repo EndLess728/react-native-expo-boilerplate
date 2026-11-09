@@ -29,6 +29,7 @@ const EXCLUDED = [
   /^README\.md$/, // every generated project gets its own README
   /^LICENSE$/, // the boilerplate's license; a generated app is its owner's to license
   /^docs\//, // guides for this repo's own stack and CI; generated apps get a README for theirs
+  /^website\//, // the documentation site (GitHub Pages), not part of an app
   /^\.env\.(development|staging|production)$/, // seeded from .env.example on install
   /^\.env(\.local)?$/,
 ];
@@ -83,11 +84,11 @@ export async function copyBaseTemplate(targetDir: string): Promise<void> {
 
 /** The boilerplate repo's configs exclude `cli/`; generated apps have no such folder. */
 async function stripRepoOnlyConfig(files: ProjectFiles): Promise<void> {
-  await files.replace('tsconfig.json', ',\n    "cli"\n', '\n');
+  await files.replace('tsconfig.json', ',\n    "website",\n    "cli"\n', '\n');
   await files.replace(
     'jest.config.js',
-    /\n {2}\/\/ `cli\/` is the create-expo-boilerplate package[\s\S]*?modulePathIgnorePatterns: \['<rootDir>\/cli\/'\],/,
+    /\n {2}\/\/ `cli\/` is the create-expo-boilerplate package[\s\S]*?modulePathIgnorePatterns: \['<rootDir>\/cli\/', '<rootDir>\/website\/'\],/,
     '',
   );
-  await files.replace('eslint.config.js', "      '**/cli/*',\n", '', { optional: true });
+  await files.replace('eslint.config.js', "      '**/cli/*',\n      '**/website/*',\n", '', { optional: true });
 }

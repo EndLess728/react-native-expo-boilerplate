@@ -9,11 +9,13 @@ on:
     paths-ignore:
       - '**/*.md'
       - '.skills/**'
+      - 'website/**'
   push:
     branches: [main]
     paths-ignore:
       - '**/*.md'
       - '.skills/**'
+      - 'website/**'
   workflow_dispatch:
     inputs:
       all:

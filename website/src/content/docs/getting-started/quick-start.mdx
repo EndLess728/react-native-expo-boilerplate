@@ -1,0 +1,68 @@
+---
+title: Quick start
+description: Create a new React Native app with create-expo-boilerplate, run it on iOS or Android, and find your way around.
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Steps>
+
+1. **Create the app**
+
+   <Tabs syncKey="pm">
+   <TabItem label="npm">
+   ```bash
+   npx create-expo-boilerplate@latest my-app
+   ```
+   </TabItem>
+   <TabItem label="yarn">
+   ```bash
+   yarn create expo-boilerplate my-app
+   ```
+   </TabItem>
+   <TabItem label="pnpm">
+   ```bash
+   pnpm create expo-boilerplate my-app
+   ```
+   </TabItem>
+   <TabItem label="bun">
+   ```bash
+   bun create expo-boilerplate my-app
+   ```
+   </TabItem>
+   </Tabs>
+
+   Press Enter at each prompt to take the default: Expo Router, Zustand, Unistyles, TypeScript, ESLint and Husky. Or skip the prompts with flags, see [CLI options](../cli/).
+
+2. **Run it**
+
+   ```bash
+   cd my-app
+   yarn ios:development       # or: yarn android:development
+   ```
+
+   Use the package manager you created the app with (`npm run ios:development`, and so on). The first run generates the native projects and compiles them, so it takes a few minutes. After that, Metro reloads JavaScript changes instantly.
+
+3. **Log in**
+
+   The app opens on a login screen. Sign in with any email and a password of at least six characters. The demo login stores a session locally. Replace it with your own API in `src/features/auth`.
+
+4. **Look around**
+
+   The Home tab loads a paginated list of posts from [DummyJSON](https://dummyjson.com/), a free demo API. Scroll to load more, tap a post to fetch its details. Settings has a language picker (try Arabic for right-to-left) and a logout button.
+
+</Steps>
+
+## What the CLI did
+
+- Copied the template and applied your choices: navigation, state, styling, language, tooling.
+- Set the app name, slug, URL scheme and bundle id from the folder name or your flags.
+- Created `.env.development`, `.env.staging` and `.env.production` from `.env.example`.
+- Wrote a README that describes exactly the stack you picked.
+- Installed dependencies, set up git (and Husky hooks), and made the first commit.
+
+## Next steps
+
+- [Make it yours](../make-it-yours/): bundle id, app name, icons and your API.
+- [Project structure](../../architecture/project-structure/): where things live.
+- [Adding a feature](../../guides/adding-a-feature/): a screen, API hook, store and translations, start to finish.

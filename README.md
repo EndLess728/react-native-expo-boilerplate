@@ -1,5 +1,7 @@
 # React Native Expo Boilerplate
 
+📖 **[Documentation](https://endless728.github.io/react-native-expo-boilerplate/)** · 📦 [`create-expo-boilerplate` on npm](https://www.npmjs.com/package/create-expo-boilerplate)
+
 Production-ready React Native starter on **Expo SDK 58**, **React Native 0.88** and **React 19.3**. It includes file-based routing, three app environments, type-checked env config, encrypted storage, i18n and a feature-based folder layout, so you can skip setup and start on features.
 
 | Area | Library |
@@ -60,8 +62,8 @@ The repo is itself the template (Expo Router + Zustand + Unistyles + TypeScript)
 **Prerequisites:** Node.js 22.13+ or 24.3+, Yarn v1, Xcode 26.4+ / Android Studio, and `npm i -g eas-cli` for cloud builds.
 
 ```bash
-git clone https://github.com/EndLess728/React-Native-Expo-Boilterplate.git
-cd React-Native-Expo-Boilterplate
+git clone https://github.com/EndLess728/react-native-expo-boilerplate.git
+cd react-native-expo-boilerplate
 yarn install                # also creates .env.development / .staging / .production
 yarn ios:development        # or yarn android:development — prebuild + run
 ```

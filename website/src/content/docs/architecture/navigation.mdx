@@ -1,0 +1,100 @@
+---
+title: Navigation
+description: How routing works with Expo Router (typed routes, protected groups) or React Navigation (typed navigators) in the React Native Expo Boilerplate.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+You pick Expo Router (the default) or React Navigation when you create the app. Both give you the same screens and the same auth behaviour: logged-out users see the login stack, logged-in users see the tabs, and **screens never redirect themselves**. `useLogin()` and `useLogout()` flip the session, and the navigator swaps the tree.
+
+<Tabs syncKey="nav">
+<TabItem label="Expo Router">
+
+Routes live in `src/app/`. The file path is the URL, and route groups in parentheses don't appear in it.
+
+| File | Route | Purpose |
+| --- | --- | --- |
+| `src/app/_layout.tsx` | | Bootstrap, providers, auth gating, `ErrorBoundary` |
+| `src/app/(auth)/login.tsx` | `/login` | Re-exports `LoginScreen` |
+| `src/app/(tabs)/_layout.tsx` | | Bottom tabs |
+| `src/app/(tabs)/index.tsx` | `/` | Re-exports `HomeScreen` |
+| `src/app/(tabs)/settings.tsx` | `/settings` | Re-exports `SettingsScreen` |
+| `src/app/+not-found.tsx` | any unknown path | 404 screen |
+
+Route files are one line, so screens stay in their features:
+
+```tsx title="src/app/(tabs)/settings.tsx"
+export { SettingsScreen as default } from '@/features/settings';
+```
+
+**Auth gating** uses `<Stack.Protected>` in the root layout. Each group has a `redirectTo`, so a failed guard sends the user to the right place instead of the 404 screen:
+
+```tsx title="src/app/_layout.tsx"
+<Stack.Protected guard={isLoggedIn} redirectTo="/login">
+  <Stack.Screen name="(tabs)" />
+</Stack.Protected>
+<Stack.Protected guard={!isLoggedIn} redirectTo="/">
+  <Stack.Screen name="(auth)" />
+</Stack.Protected>
+```
+
+**Navigating.** Routes are typed (`experiments.typedRoutes` in `app.config.ts`), so a wrong `href` is a type error. Use URL paths, not group names:
+
+```tsx
+import { Link, useRouter } from 'expo-router';
+
+<Link href="/settings">Settings</Link>;
+
+const router = useRouter();
+router.push('/settings');
+router.replace('/login');
+router.back();
+```
+
+**Errors.** The root layout re-exports Expo Router's `ErrorBoundary`. Replace it with your own component (`({ error, retry }) => …`) to customise the error screen.
+
+</TabItem>
+<TabItem label="React Navigation">
+
+Navigators live in `src/navigation/`:
+
+| File | Purpose |
+| --- | --- |
+| `RootNavigator.tsx` | Mounts `AuthNavigator` or `MainTabNavigator` depending on `useIsLoggedIn()` |
+| `AuthNavigator.tsx` | Native stack with the login screen |
+| `MainTabNavigator.tsx` | Bottom tabs: Home and Settings |
+| `linking.ts` | Deep-link configuration |
+| `types.ts` | Typed param lists for every navigator |
+
+Route names come from `NAVIGATION` in `src/shared/constants`, so there are no string literals scattered around.
+
+```tsx title="src/navigation/RootNavigator.tsx"
+export function RootNavigator() {
+  const isLoggedIn = useIsLoggedIn();
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isLoggedIn ? (
+        <Stack.Screen component={MainTabNavigator} name={NAVIGATION.main} />
+      ) : (
+        <Stack.Screen component={AuthNavigator} name={NAVIGATION.auth} />
+      )}
+    </Stack.Navigator>
+  );
+}
+```
+
+Only the navigator for the current session is mounted, and React Navigation animates the switch.
+
+</TabItem>
+</Tabs>
+
+## Adding a screen
+
+See [Adding a feature](../../guides/adding-a-feature/) for the full walkthrough. For a new **tab**, also register its icon and label in `src/shared/components/TabBarIcon.tsx` and `TabBarLabel.tsx`.
+
+## Handy hooks
+
+| Hook | Use |
+| --- | --- |
+| `useBlockBackNavigation(shouldBlock, options?)` | While `shouldBlock` is true, asks the user to confirm before leaving (Android back, iOS swipe-back or `goBack()`). Typical use: a form with unsaved changes |
+| `useScreenLoader(active)` | Shows the app-wide loader while `active` is true **and** the screen is focused, so a background tab never blocks the one in view |

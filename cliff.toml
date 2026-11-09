@@ -40,7 +40,7 @@ commit_parsers = [
 
 [remote.github]
 owner = "EndLess728"
-repo = "React-Native-Expo-Boilterplate"
+repo = "react-native-expo-boilerplate"
 
 [bump]
 # Before 1.0.0, breaking changes bump the minor and features bump the patch.

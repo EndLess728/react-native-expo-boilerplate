@@ -53,7 +53,7 @@ export function renderReadme(o: ProjectOptions): string {
   push(
     `# ${o.displayName}`,
     '',
-    'Expo app generated with [create-expo-boilerplate](https://github.com/EndLess728/React-Native-Expo-Boilterplate).',
+    'Expo app generated with [create-expo-boilerplate](https://endless728.github.io/react-native-expo-boilerplate/).',
     '',
     '## Stack',
     '',

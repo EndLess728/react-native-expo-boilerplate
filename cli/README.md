@@ -1,6 +1,6 @@
 # create-expo-boilerplate
 
-Scaffold a new Expo app from [React-Native-Expo-Boilterplate](https://github.com/EndLess728/React-Native-Expo-Boilterplate) — no cloning, no deleting example code by hand.
+Scaffold a new Expo app from [react-native-expo-boilerplate](https://github.com/EndLess728/react-native-expo-boilerplate) ([docs](https://endless728.github.io/react-native-expo-boilerplate/)) — no cloning, no deleting example code by hand.
 
 ```bash
 npx create-expo-boilerplate my-app

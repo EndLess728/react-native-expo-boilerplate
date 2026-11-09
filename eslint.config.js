@@ -42,6 +42,7 @@ module.exports = [
       '**/.vscode/*',
       '**/docs/*',
       '**/cli/*',
+      '**/website/*',
       '**/expo-env.d.ts',
       '**/babel.config.js',
       '**/metro.config.js',

@@ -1,0 +1,78 @@
+---
+title: React Native Expo Boilerplate
+description: A production-ready React Native and Expo starter. One command creates an app with your choice of navigation, state management and styling, plus TanStack Query, encrypted storage, i18n, three environments and EAS workflows.
+template: splash
+hero:
+  tagline: A production-ready starter for React Native and Expo. One command gives you a real app with routing, state, data fetching, forms, encrypted storage, i18n, three environments and EAS builds, using only the libraries you pick.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Get started
+      link: getting-started/quick-start/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/EndLess728/react-native-expo-boilerplate
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+```bash
+npx create-expo-boilerplate@latest my-app
+```
+
+Answer a few questions, or press Enter to take the defaults. The CLI writes an app with only the stack you chose, installs dependencies and makes the first git commit.
+
+## Pick your stack
+
+| Choice | Options (default first) |
+| --- | --- |
+| Navigation | Expo Router (typed routes) · React Navigation |
+| State management | Zustand · Redux Toolkit with Thunk or Saga |
+| Styling | Unistyles 3 · React Native StyleSheet · Tailwind (Uniwind) |
+| Language | TypeScript · JavaScript |
+| Tooling | ESLint and Husky, each on or off |
+| Package manager | yarn · npm · pnpm · bun |
+
+That's 144 combinations. A test script generates each one and checks that it type-checks, lints, passes its tests and has no leftover code from the options you didn't pick, and CI runs it on every change.
+
+## What every app gets
+
+<CardGrid>
+  <Card title="Latest Expo" icon="rocket">
+    Expo SDK 58, React Native 0.88 and React 19.3, with the React Compiler and the New Architecture.
+  </Card>
+  <Card title="Data fetching" icon="random">
+    TanStack Query v5, Axios and react-query-kit, with a shared client that adds auth tokens, checks connectivity, handles 401s and shows error toasts.
+  </Card>
+  <Card title="Forms" icon="pencil">
+    React Hook Form with Zod v4 schemas and a `ControlledTextField` ready to use.
+  </Card>
+  <Card title="Encrypted storage" icon="seti:lock">
+    MMKV encrypted with AES, using a random key kept in the iOS Keychain or Android Keystore.
+  </Card>
+  <Card title="i18n with RTL" icon="translate">
+    i18next with English, Spanish and Arabic, typed translation keys, and automatic right-to-left layout.
+  </Card>
+  <Card title="Three environments" icon="setting">
+    Development, staging and production, each with its own app name and Zod-validated env vars.
+  </Card>
+  <Card title="EAS ready" icon="cloud-download">
+    Build profiles, fast "repack" builds that skip native compiles, and an approval-gated release workflow.
+  </Card>
+  <Card title="Quality built in" icon="approve-check">
+    Jest with React Native Testing Library, ESLint 9, Prettier, Husky and Commitlint.
+  </Card>
+</CardGrid>
+
+## Built to scale
+
+Code is organised by feature (`src/features/auth`, `src/features/posts`, …). Each feature exposes a small public API, and screens talk to state only through hooks like `useLogin()` and `useIsLoggedIn()`. That's why the CLI can swap Zustand for Redux, or Expo Router for React Navigation, without touching a single screen.
+
+<CardGrid>
+  <LinkCard title="Quick start" description="Create and run your first app in a few minutes." href="getting-started/quick-start/" />
+  <LinkCard title="Project structure" description="How the folders fit together and why." href="architecture/project-structure/" />
+  <LinkCard title="CLI options" description="Every prompt and flag, with examples." href="getting-started/cli/" />
+  <LinkCard title="Adding a feature" description="A screen, an API hook, a store and translations, start to finish." href="guides/adding-a-feature/" />
+</CardGrid>

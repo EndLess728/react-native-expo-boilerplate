@@ -1,0 +1,116 @@
+---
+title: Styling & theming
+description: Unistyles 3, React Native StyleSheet or Tailwind (Uniwind) in the React Native Expo Boilerplate, with shared light and dark theme tokens and responsive scaling.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+You pick a styling approach when you create the app. All three have the same screens, the same light and dark theme tokens and the same `useAppTheme()` hook, so the rest of the app doesn't care which one you chose.
+
+## Theme tokens
+
+Colors and spacing are defined once in `src/styles/themes.ts`, as a `lightTheme` and a `darkTheme`:
+
+```ts
+theme.colors.primary      // brand color
+theme.colors.background   // screen background
+theme.colors.surface      // cards and raised UI, a step above the background in dark mode
+theme.colors.typography   // main text color
+theme.colors.danger       // errors
+theme.margins.md          // spacing scale: sm, md, lg, xl
+```
+
+Colors that read well on both themes (`danger`, `white`, `onPrimary`…) are shared, so each theme only declares what's different.
+
+## `useAppTheme()`
+
+For colors you pass as **props** rather than styles (icon colors, tab bar tints, `placeholderTextColor`), use the same hook in every option:
+
+```tsx
+import { useAppTheme } from '@/theme';
+
+const theme = useAppTheme();
+<Ionicons name="home" color={theme.colors.primary} size={24} />;
+```
+
+## Writing styles
+
+<Tabs syncKey="styling">
+<TabItem label="Unistyles">
+
+The default. Styles are written with [Unistyles 3](https://unistyl.es/) and receive the theme and runtime info (screen size, insets, breakpoints):
+
+```tsx
+import { StyleSheet } from 'react-native-unistyles';
+
+const styles = StyleSheet.create((theme, rt) => ({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    paddingTop: rt.insets.top,
+  },
+  title: { color: theme.colors.typography },
+}));
+```
+
+Theme changes update styles without re-rendering components. Breakpoints are in `src/styles/breakpoints.ts`, and `src/styles/unistyles.ts` registers themes and breakpoints. That file is loaded first by the custom `index.ts` entry, because styles are created at import time.
+
+</TabItem>
+<TabItem label="StyleSheet">
+
+Plain React Native `StyleSheet`, with no extra dependency. For styles that depend on the theme, use `makeStyles` from `@/theme`:
+
+```tsx
+import { makeStyles } from '@/theme';
+
+const useStyles = makeStyles((theme) => ({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  title: { color: theme.colors.typography },
+}));
+
+export function ProfileScreen() {
+  const styles = useStyles();
+  return <View style={styles.container} />;
+}
+```
+
+Styles that don't depend on the theme can stay in a normal `StyleSheet.create`.
+
+</TabItem>
+<TabItem label="Tailwind">
+
+Tailwind CSS v4 through [Uniwind](https://uniwind.dev/), using `className`:
+
+```tsx
+<View className="flex-1 bg-background p-5">
+  <Text className="text-h1 font-opensans-bold text-typography">Profile</Text>
+  <Text className="text-body-lg font-opensans-semibold text-primary">Edit</Text>
+</View>
+```
+
+Theme colors, fonts and text roles (`text-h1`, `text-body-lg`…) are defined in `global.css`, with separate light and dark values, so classes like `bg-background` and `text-typography` follow the theme. `metro.config.js` wires Uniwind into Metro.
+
+</TabItem>
+</Tabs>
+
+## Responsive sizes
+
+`src/shared/utils/scale.ts` scales sizes from a ~5" phone baseline so layouts look the same on small and large screens:
+
+| Helper | Scales by | Use for |
+| --- | --- | --- |
+| `s(size)` | screen width | horizontal padding, widths |
+| `vs(size)` | screen height | vertical spacing, heights |
+| `ms(size, factor?)` | width, damped | font and icon sizes (`factor` defaults to 0.5) |
+| `mvs(size, factor?)` | height, damped | vertical spacing that shouldn't grow too much |
+
+```tsx
+import { ms } from '@/shared/utils';
+<Ionicons name="lock-closed-outline" size={ms(48)} />;
+```
+
+## Shared components
+
+`src/shared/components` has themed building blocks that every styling option implements: `Button` (with loading state), `TextField`, `ControlledTextField`, `ScreenWrapper` (safe area and keyboard-aware scrolling), `FullScreenLoader`, the tab bar icon and label, and `AppOverlay` (the global loader and toasts).
+
+Toasts are themed too: `showSuccessToast`, `showErrorToast`, `showInfoToast` and `showWarningToast` from `@/shared/utils/toast`, each taking `{ title, message }`.
