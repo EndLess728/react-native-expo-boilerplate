@@ -13,6 +13,7 @@ const UNISTYLES_REGION_FILES = [
   'babel.config.js',
   'eslint.config.js',
   'src/styles/themes.ts',
+  'jest.setup.ts',
 ];
 
 /**

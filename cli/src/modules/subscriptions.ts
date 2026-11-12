@@ -291,12 +291,13 @@ export const subscriptions: ModuleGenerator = {
     );
 
     // The tests format real copy through i18n, which loads expo-localization
-    // and, through it, other expo-* packages — all untranspiled ESM. The
-    // template's pattern only covers the bare `expo` package.
+    // and, through it, other expo-* packages — all untranspiled ESM. Projects
+    // created before the template covered expo-* need it added.
     await patch.edit(
       'jest.config.js',
       (src) =>
-        src.includes("'expo-[a-z-]+|'")
+        // Templates from this version on already include it.
+        src.includes('expo-[a-z-]+')
           ? src
           : src.includes("'node_modules/(?!(' +\n")
             ? src.replace(
