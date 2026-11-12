@@ -127,18 +127,13 @@ function resolveSpecifier(fromFile: string, spec: string): string | null {
 const FROM_STATEMENT_RE = /^(?:import|export)\b[^;'"]*?\bfrom\s*['"]([^'"]+)['"];?[ \t]*\n?/gm;
 const SIDE_EFFECT_IMPORT_RE = /^import\s*['"]([^'"]+)['"];?[ \t]*\n?/gm;
 
-export async function convertToJavaScript(
-  files: ProjectFiles,
-  pkg: PackageJsonEditor,
-  options: ProjectOptions,
-): Promise<void> {
-  const all = await files.list();
-
-  // 1. Declaration files carry nothing at runtime.
-  await files.remove(...all.filter((f) => f.endsWith('.d.ts')));
-
-  // 2. Transpile.
-  const sources = all.filter((f) => /\.tsx?$/.test(f) && !f.endsWith('.d.ts'));
+/**
+ * Transpiles `sources` (.ts/.tsx, project-relative) to .js/.jsx in place.
+ * Files that only held types are deleted, along with every import / re-export
+ * among `sources` that pointed at them. Used for whole projects and for the
+ * files a module adds to a JavaScript project.
+ */
+export async function transpileFiles(files: ProjectFiles, sources: string[]): Promise<void> {
   const output = new Map<string, string>(); // new path → code
   const emptied = new Set<string>(); // old path without extension
 
@@ -150,7 +145,6 @@ export async function convertToJavaScript(
     await files.remove(rel);
   }
 
-  // 3. Drop imports / re-exports of modules that were types only.
   const pointsAtEmptied = (fromFile: string, spec: string) => {
     const base = resolveSpecifier(fromFile, spec);
     return base !== null && (emptied.has(base) || emptied.has(`${base}/index`));
@@ -160,6 +154,23 @@ export async function convertToJavaScript(
     const cleaned = code.replace(FROM_STATEMENT_RE, drop).replace(SIDE_EFFECT_IMPORT_RE, drop);
     await files.write(rel, cleaned);
   }
+}
+
+export async function convertToJavaScript(
+  files: ProjectFiles,
+  pkg: PackageJsonEditor,
+  options: ProjectOptions,
+): Promise<void> {
+  const all = await files.list();
+
+  // 1. Declaration files carry nothing at runtime.
+  await files.remove(...all.filter((f) => f.endsWith('.d.ts')));
+
+  // 2–3. Transpile, and drop imports of modules that were types only.
+  await transpileFiles(
+    files,
+    all.filter((f) => /\.tsx?$/.test(f) && !f.endsWith('.d.ts')),
+  );
 
   // 4. Config that names TS files.
   await files.remove('tsconfig.json', 'tsconfig.test.json');

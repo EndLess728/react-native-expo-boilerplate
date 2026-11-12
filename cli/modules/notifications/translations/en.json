@@ -1,0 +1,12 @@
+{
+  "notifications": {
+    "permission": {
+      "undetermined": "Turn on notifications to get updates.",
+      "denied": "Notifications are off. You won't get any updates.",
+      "blocked": "Notifications are blocked. Open Settings to turn them back on.",
+      "channel_blocked": "Some alerts are switched off for this app. Open Settings to turn them back on.",
+      "turn_on": "Turn on notifications",
+      "open_settings": "Open Settings"
+    }
+  }
+}

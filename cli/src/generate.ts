@@ -8,6 +8,7 @@ import { applyState } from './steps/state.js';
 import { applyStyling } from './steps/styling.js';
 import { applyTooling } from './steps/tooling.js';
 import { formatProject } from './steps/format.js';
+import { writeManifest } from './manifest.js';
 import { copyBaseTemplate } from './template.js';
 import { ProjectFiles } from './utils/files.js';
 import { PackageJsonEditor } from './utils/packageJson.js';
@@ -21,6 +22,7 @@ import { PackageJsonEditor } from './utils/packageJson.js';
  */
 export async function generateProject(
   options: ProjectOptions,
+  cliVersion: string,
   onStep: (message: string) => void = () => {},
 ): Promise<void> {
   const files = new ProjectFiles(options.targetDir);
@@ -56,6 +58,7 @@ export async function generateProject(
 
   await pkg.save();
   await writeReadme(files, options);
+  await writeManifest(files, options, cliVersion);
 
   onStep('Formatting');
   await formatProject(files);

@@ -9,7 +9,8 @@
   "files": [
     "dist",
     "template",
-    "overlays"
+    "overlays",
+    "modules"
   ],
   "engines": {
     "node": ">=20.19"

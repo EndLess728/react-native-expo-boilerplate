@@ -11,6 +11,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 /** Root of the published package (`cli/` in the repo). */
 export const PACKAGE_ROOT = resolve(here, '..');
 export const OVERLAYS_DIR = join(PACKAGE_ROOT, 'overlays');
+/** Source for `add <module>` — see src/modules/. */
+export const MODULES_DIR = join(PACKAGE_ROOT, 'modules');
 const PACKAGED_TEMPLATE_DIR = join(PACKAGE_ROOT, 'template');
 /** The boilerplate itself — the repo root, one level above `cli/`. */
 const REPO_ROOT = resolve(PACKAGE_ROOT, '..');

@@ -15,6 +15,11 @@ export const VERSIONS = {
   // Tailwind styling (Uniwind compiles Tailwind v4 at bundle time)
   uniwind: '^1.13.1',
   tailwindcss: '^4.3.3',
+
+  // `add notifications`. Messaging's peer pins the exact app version, so bump both together.
+  '@react-native-firebase/app': '^27.1.1',
+  '@react-native-firebase/messaging': '^27.1.1',
+  'react-native-notify-kit': '^10.10.0',
 } as const;
 
 export function pick(...names: (keyof typeof VERSIONS)[]): Record<string, string> {

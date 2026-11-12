@@ -48,6 +48,28 @@ Every option has the same screens and the same light/dark theme tokens (`src/sty
 
 Every combination uses the same feature-based layout (`src/features/<feature>`, `src/shared`, …). Screens only talk to state through the auth feature's hooks (`useIsLoggedIn`, `useLogin`, …), which is why switching the state library or the navigator doesn't touch a single screen.
 
+## Adding modules later
+
+From the root of a generated project:
+
+```bash
+npx create-expo-boilerplate add notifications
+npx create-expo-boilerplate add notifications --dry-run   # list what would change, write nothing
+```
+
+| Module | What you get |
+|---|---|
+| `notifications` | Push (Firebase Cloud Messaging) and local notifications via NotifyKit: permission handling with a five-state banner, Android channels, foreground/background/killed delivery, allowlisted tap routing including cold start, token sync to your backend, tests. Docs land in `src/notifications/README.md`. |
+
+`add` reads the stack from `boilerplate.json` (written by every new project; older projects are detected from their files) and writes the variant that fits: Expo Router or React Navigation, Unistyles / StyleSheet / Tailwind, TypeScript or JavaScript. It:
+
+- refuses to run with uncommitted changes (`--force` overrides), so the module lands as one diff you can review;
+- builds everything in a staging copy first, so a failure leaves the project untouched;
+- patches the files it wires into (entry, `AppProviders`, `app.config.ts`, Jest config, translations). If one of them has been customised past recognition, it doesn't guess: it applies the rest and prints the edit to make by hand;
+- refuses to add a module twice.
+
+`notifications` flags: `--token-endpoint <path>` (default `devices/push-token`), `--google-services <path>` / `--google-service-info <path>` (Firebase files to copy into `firebase/`; prompted for, and skippable), `--banner` / `--no-banner` (permission banner on Settings), plus the shared `--yes`, `--dry-run`, `--force`, `--no-install`.
+
 ## How it works
 
 The repo root **is** the template: the Expo Router + Zustand + TypeScript app with ESLint and Husky. Nobody maintains a second copy.
@@ -68,6 +90,9 @@ cli/
 │       ├── javascript.ts     # TS → JS with the TypeScript compiler, last
 │       ├── readme.ts         # README for the exact stack chosen
 │       └── format.ts         # Prettier with the project's .prettierrc
+│   ├── add.ts                # `add <module>`: preflight, staging copy, JS pass, write back
+│   ├── manifest.ts           # boilerplate.json (stack + added modules), detection fallback
+│   └── modules/              # one generator per module, registered in index.ts
 ├── overlays/                 # files that differ per option, written in TypeScript
 │   ├── react-navigation/
 │   ├── redux/{common,thunk,saga}/
@@ -75,6 +100,7 @@ cli/
 │       ├── common/           #   styled components, screens, theme hooks (+ global.css, metro.config.js)
 │       ├── expo-router/      #   route files that only exist with Expo Router
 │       └── docs/             #   replacement sections for .skills/ui-creation.md and the screen snippet
+├── modules/<name>/           # module sources: files/ (base stack), overlays/ (per option), translations/
 └── scripts/
     ├── sync-template.mjs     # copies the repo root into template/ when packing
     └── test-matrix.mjs       # generates + checks every combination
@@ -107,6 +133,7 @@ npm run test:matrix            # 26 core combinations
 npm run test:matrix -- --all   # all 144
 npm run test:matrix -- --export   # also bundle each with `expo export` (slow)
 npm run test:matrix -- --only redux-saga.react-navigation.tailwind
+npm run test:matrix -- --add notifications   # also add a module to each, and check it refuses a second add
 ```
 
 The script generates each project into your temp dir, installs **one** shared superset of dependencies, and checks each project for leftovers (stray markers, Zustand imports in Redux apps, Unistyles in StyleSheet / Tailwind apps, …), circular imports (madge), `tsc`, ESLint (or Prettier when ESLint is off), Jest, and `expo config`. CI runs the core set on every PR that touches the app or the CLI.
@@ -117,6 +144,13 @@ The script generates each project into your temp dir, installs **one** shared su
 2. Put files that differ in `overlays/<option>/`, in TypeScript, mirroring project paths.
 3. Pin any new packages in `versions.ts`.
 4. Add the dimension to `scripts/test-matrix.mjs` and run it.
+
+### Adding a module
+
+1. Put its sources in `modules/<name>/files/`, written for the base stack (Expo Router, Unistyles, TypeScript) and mirroring project paths; per-option replacements go in `modules/<name>/overlays/`.
+2. Write a `ModuleGenerator` in `src/modules/<name>.ts` (prompts + flags, file copy, patches through `Patcher`, next steps) and register it in `src/modules/index.ts`.
+3. Pin its packages in `versions.ts` — the test matrix installs them.
+4. Run `npm run test:matrix -- --add <name>`. A patch that falls back to "do this by hand" fails the matrix.
 
 ### Upgrading the Expo SDK
 

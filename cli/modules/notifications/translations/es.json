@@ -1,0 +1,12 @@
+{
+  "notifications": {
+    "permission": {
+      "undetermined": "Activa las notificaciones para recibir novedades.",
+      "denied": "Las notificaciones están desactivadas. No recibirás novedades.",
+      "blocked": "Las notificaciones están bloqueadas. Abre Ajustes para volver a activarlas.",
+      "channel_blocked": "Algunas alertas de esta app están desactivadas. Abre Ajustes para volver a activarlas.",
+      "turn_on": "Activar notificaciones",
+      "open_settings": "Abrir Ajustes"
+    }
+  }
+}

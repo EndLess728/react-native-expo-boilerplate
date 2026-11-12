@@ -7,7 +7,9 @@ import * as p from '@clack/prompts';
 import { Command, InvalidArgumentError } from 'commander';
 import pc from 'picocolors';
 
+import { addModule, type AddFlags } from './add.js';
 import { generateProject } from './generate.js';
+import { MODULES } from './modules/index.js';
 import {
   CHOICES,
   defaultBundleId,
@@ -58,6 +60,8 @@ const oneOf =
   };
 
 const program = new Command()
+  // Options after `add` belong to `add`, not to project creation.
+  .enablePositionalOptions()
   .name('create-expo-boilerplate')
   .description('Scaffold an Expo app from react-native-expo-boilerplate.')
   .version(version)
@@ -89,8 +93,38 @@ Examples:
   $ npx create-expo-boilerplate my-app
   $ npx create-expo-boilerplate my-app --state redux --redux-middleware saga --navigation react-navigation
   $ npx create-expo-boilerplate my-app --styling tailwind
-  $ npx create-expo-boilerplate my-app --yes --js --no-husky`,
-  );
+  $ npx create-expo-boilerplate my-app --yes --js --no-husky
+
+Add a module to an existing project (run from its root):
+  $ npx create-expo-boilerplate add notifications`,
+  )
+  .action(() => createProject());
+
+const addCommand = program
+  .command('add')
+  .description('add a module to the project in the current directory')
+  .argument('[module]', Object.keys(MODULES).join(' | '))
+  .option('-y, --yes', 'accept defaults instead of prompting')
+  .option('--dry-run', 'show what would change without writing anything')
+  .option('--force', 'run even with uncommitted changes')
+  .option('--no-install', 'skip installing dependencies')
+  .addHelpText(
+    'after',
+    `
+Modules:
+${Object.values(MODULES)
+  .map((m) => `  ${m.name.padEnd(16)}${m.description}`)
+  .join('\n')}
+
+Examples:
+  $ npx create-expo-boilerplate add notifications
+  $ npx create-expo-boilerplate add notifications --dry-run
+  $ npx create-expo-boilerplate add notifications --yes --token-endpoint users/me/devices`,
+  )
+  .action((name: string | undefined, flags: AddFlags) => addModule(name, flags, version));
+for (const mod of Object.values(MODULES)) {
+  for (const flag of mod.flags) addCommand.option(flag.flags, flag.description);
+}
 
 function bail(value: unknown): void {
   if (p.isCancel(value)) {
@@ -121,8 +155,7 @@ async function isEmptyDir(dir: string): Promise<boolean> {
   }
 }
 
-async function main(): Promise<void> {
-  program.parse();
+async function createProject(): Promise<void> {
   const [dirArg] = program.args as [string | undefined];
   const flags = program.opts<CliFlags>();
   const defaults = Boolean(flags.yes) || !process.stdout.isTTY;
@@ -282,7 +315,7 @@ async function main(): Promise<void> {
   const s = p.spinner();
   s.start('Generating project');
   try {
-    await generateProject(options, (msg) => s.message(msg));
+    await generateProject(options, version, (msg) => s.message(msg));
   } catch (error) {
     s.error('Generation failed');
     throw error;
@@ -353,7 +386,7 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((error: unknown) => {
+program.parseAsync().catch((error: unknown) => {
   p.log.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

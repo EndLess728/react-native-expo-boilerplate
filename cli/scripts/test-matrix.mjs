@@ -7,6 +7,7 @@
  *   node scripts/test-matrix.mjs --all      # every combination (144)
  *   node scripts/test-matrix.mjs --export   # also bundle each project with `expo export` (slow)
  *   node scripts/test-matrix.mjs --only redux-saga.react-navigation.tailwind.ts
+ *   node scripts/test-matrix.mjs --add notifications   # also run `add <module>` on each project
  *
  * Dependencies are installed ONCE: the union of every generated package.json
  * goes into .matrix/deps, and each project symlinks its node_modules to it.
@@ -28,6 +29,7 @@ const args = process.argv.slice(2);
 const all = args.includes('--all');
 const doExport = args.includes('--export');
 const only = args.includes('--only') ? args[args.indexOf('--only') + 1] : null;
+const addModules = args.flatMap((arg, i) => (arg === '--add' ? [args[i + 1]] : []));
 
 // ── Combinations ───────────────────────────────────────────
 const STATES = [
@@ -57,7 +59,8 @@ for (const state of STATES)
           // only touch config files, not app code.
           const base = state.id === 'zustand' && nav === 'expo-router' && styling === 'unistyles';
           const core =
-            (tooling.id === 'eslint-husky' && (styling === 'unistyles' || state.id === 'zustand')) ||
+            (tooling.id === 'eslint-husky' &&
+              (styling === 'unistyles' || state.id === 'zustand')) ||
             base;
           if (!all && !core) continue;
           const id = `${state.id}.${nav}.${styling}.${lang}.${tooling.id}`;
@@ -173,13 +176,33 @@ if (!cached) {
 
 // ── 3. Checks ──────────────────────────────────────────────
 const results = [];
-for (const combo of combos) {
+check: for (const combo of combos) {
   const dir = join(matrixDir, combo.id);
   const link = join(dir, 'node_modules');
   await rm(link, { recursive: true, force: true });
   await symlink(join(depsDir, 'node_modules'), link, 'dir');
   // The app config validates env vars; give it the example values.
   await copyFile(join(dir, '.env.example'), join(dir, '.env.development'));
+
+  // After node_modules is linked, like a real project: `add` uses its Prettier and ESLint.
+  for (const mod of addModules) {
+    const added = sh(
+      'node',
+      [join(cliRoot, 'dist/index.js'), 'add', mod, '--yes', '--no-install'],
+      dir,
+    );
+    if (!added.ok || /by hand/.test(added.out)) {
+      console.error(`✖ add ${mod} to ${combo.id}\n${added.out}`);
+      results.push({ id: combo.id, ok: false, checks: [] });
+      continue check;
+    }
+    // Running it again must refuse, not duplicate the wiring.
+    if (sh('node', [join(cliRoot, 'dist/index.js'), 'add', mod, '--yes', '--no-install'], dir).ok) {
+      console.error(`✖ add ${mod} twice to ${combo.id} succeeded`);
+      results.push({ id: combo.id, ok: false, checks: [] });
+      continue check;
+    }
+  }
 
   const checks = [];
   const problems = await leftovers(dir, combo);
