@@ -18,7 +18,7 @@ npx create-expo-boilerplate add subscriptions
 | `notifications` | Push and local notifications in `src/notifications/` | Firebase Cloud Messaging, NotifyKit |
 | `subscriptions` | In-app subscriptions, a paywall and a premium gate in `src/subscription/` | RevenueCat |
 
-Each module brings its own `README.md` with setup, store configuration, gotchas and troubleshooting.
+Each module brings its own `README.md` with setup, store configuration, gotchas and troubleshooting. For the full list of cases each one covers, and what stays with you, see [What the modules handle](../module-cases/).
 
 ## How `add` works
 

@@ -103,6 +103,7 @@ export default defineConfig({
           items: [
             { label: 'Adding a feature', slug: 'guides/adding-a-feature' },
             { label: 'Adding modules', slug: 'guides/modules' },
+            { label: 'What the modules handle', slug: 'guides/module-cases' },
             { label: 'Environments', slug: 'guides/environments' },
             { label: 'Local builds & repack', slug: 'guides/local-builds' },
             { label: 'EAS builds & releases', slug: 'guides/eas' },
