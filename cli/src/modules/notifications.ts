@@ -1,11 +1,12 @@
 import { existsSync } from 'node:fs';
-import { copyFile, readFile } from 'node:fs/promises';
+import { copyFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 import * as p from '@clack/prompts';
 
 import { MODULES_DIR } from '../template.js';
 import { pick } from '../versions.js';
+import { mergeTranslations, wireNavigationRef, wrapAppChildren } from './shared.js';
 import { CancelledError, type ModuleContext, type ModuleGenerator } from './types.js';
 
 const DIR = join(MODULES_DIR, 'notifications');
@@ -52,20 +53,6 @@ const firebaseFile = (name${ts ? ': string' : ''}) => {
   return undefined;
 };
 `;
-
-type Json = Record<string, unknown>;
-
-function deepMerge(target: Json, source: Json): Json {
-  const out: Json = { ...target };
-  for (const [key, value] of Object.entries(source)) {
-    const existing = out[key];
-    out[key] =
-      value && typeof value === 'object' && existing && typeof existing === 'object'
-        ? deepMerge(existing as Json, value as Json)
-        : (existing ?? value);
-  }
-  return out;
-}
 
 async function askEndpoint(ctx: ModuleContext, flag: unknown): Promise<string> {
   const validate = (v: string | undefined) =>
@@ -202,16 +189,7 @@ export const notifications: ModuleGenerator = {
     );
 
     // ── Copy ─────────────────────────────────────────────────
-    const translationsDir = join(DIR, 'translations');
-    const fallback = JSON.parse(await readFile(join(translationsDir, 'en.json'), 'utf8'));
-    for (const rel of await files.list('src/localization/translations')) {
-      if (!rel.endsWith('.json')) continue;
-      const lang = rel.split('/').pop()!.replace('.json', '');
-      const own = join(translationsDir, `${lang}.json`);
-      const strings = existsSync(own) ? JSON.parse(await readFile(own, 'utf8')) : fallback;
-      const merged = deepMerge(JSON.parse(await files.read(rel)), strings);
-      await files.write(rel, `${JSON.stringify(merged, null, 2)}\n`);
-    }
+    await mergeTranslations(ctx, DIR);
 
     // ── Wiring ───────────────────────────────────────────────
     await patch.insertBefore(
@@ -222,61 +200,10 @@ export const notifications: ModuleGenerator = {
       "add `import '@/notifications/setup';` to the entry file, above the router/app import.",
     );
 
-    const providers = patch.find(
-      'src/providers/AppProviders.tsx',
-      'src/providers/AppProviders.jsx',
-    );
-    const providerMsg =
-      'wrap the navigation root in `<NotificationRoot>` (from `@/notifications`), inside `<APIProvider>`.';
-    if (
-      await patch.edit(
-        providers,
-        (src) =>
-          src.includes('<NotificationRoot>')
-            ? src
-            : src.includes('<APIProvider>{children}</APIProvider>')
-              ? src.replace(
-                  '<APIProvider>{children}</APIProvider>',
-                  '<APIProvider>\n<NotificationRoot>{children}</NotificationRoot>\n</APIProvider>',
-                )
-              : null,
-        providerMsg,
-      )
-    ) {
-      await patch.insertBefore(
-        providers,
-        /^import \{ APIProvider \}/m,
-        "import { NotificationRoot } from '@/notifications';\n",
-        "import `NotificationRoot` from '@/notifications'.",
-      );
-    }
+    await wrapAppChildren(patch, 'NotificationRoot', '@/notifications');
 
     if (stack.navigation === 'react-navigation') {
-      const app = patch.find('src/App.tsx', 'src/App.jsx');
-      const refMsg =
-        'pass `ref={navigationRef}` (from `@/navigation/navigationRef`) to `<NavigationContainer>` so notification taps can navigate.';
-      if (
-        await patch.edit(
-          app,
-          (src) =>
-            src.includes('ref={navigationRef}')
-              ? src
-              : /<NavigationContainer(\s)/.test(src)
-                ? src.replace(
-                    /<NavigationContainer(\s)/,
-                    '<NavigationContainer ref={navigationRef}$1',
-                  )
-                : null,
-          refMsg,
-        )
-      ) {
-        await patch.insertBefore(
-          app,
-          /^import \{ AppProviders/m,
-          "import { navigationRef } from '@/navigation/navigationRef';\n",
-          refMsg,
-        );
-      }
+      await wireNavigationRef(patch, 'notification taps can navigate');
     }
 
     if (banner) {

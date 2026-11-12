@@ -94,8 +94,9 @@ export async function addModule(
     );
   }
   const { manifest, detected } = await loadManifest(project);
-  if (manifest.modules[mod.name] || project.exists(`src/${mod.name}`)) {
-    throw new Error(`${mod.name} is already in this project (src/${mod.name}/).`);
+  const moduleDir = `src/${mod.dir ?? mod.name}`;
+  if (manifest.modules[mod.name] || project.exists(moduleDir)) {
+    throw new Error(`${mod.name} is already in this project (${moduleDir}/).`);
   }
   if (detected) {
     p.log.warn(
@@ -190,7 +191,10 @@ export async function addModule(
   let installed = false;
   if (flags.install) {
     if (await commandExists(pm)) {
-      const s = p.spinner();
+      // The animated spinner floods non-interactive output (CI logs, pipes).
+      const s = process.stdout.isTTY
+        ? p.spinner()
+        : { start: p.log.step, stop: p.log.success, error: p.log.error };
       s.start(`Installing dependencies with ${pm}`);
       try {
         await run(pm, ['install'], cwd);
@@ -211,7 +215,9 @@ export async function addModule(
   }
   const steps = [installed ? null : PM[pm].install, ...nextSteps].filter(Boolean);
   p.note(steps.map((step, i) => `${i + 1}. ${step}`).join('\n'), 'Next steps');
-  p.outro(`${pc.green('✔')} Added ${pc.bold(mod.name)} — docs in src/${mod.name}/README.md`);
+  p.outro(
+    `${pc.green('✔')} Added ${pc.bold(mod.name)} — docs in src/${mod.dir ?? mod.name}/README.md`,
+  );
 }
 
 function projectPackageManager(project: ProjectFiles): PackageManager {

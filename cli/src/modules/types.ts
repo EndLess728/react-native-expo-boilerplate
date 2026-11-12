@@ -84,6 +84,8 @@ export interface ModuleContext {
 
 export interface ModuleGenerator {
   name: string;
+  /** The folder it creates under src/ — defaults to `name`. */
+  dir?: string;
   description: string;
   /** Extra `add` flags this module understands, for `--help`. */
   flags: { flags: string; description: string }[];
