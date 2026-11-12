@@ -49,11 +49,18 @@ interface QueueItem {
 }
 
 /**
- * Extends the Axios request config with a custom `_retryCount`
- * property to track how many times a request has been retried
- * after a 401 response. This prevents infinite retry loops.
+ * Extends the Axios request config with:
+ *
+ * - `silent` — skip the error toasts for this request. For background calls
+ *   the user didn't trigger and can't act on (e.g. registering a push token).
+ *   Errors still reject, and 401 handling still applies.
+ * - `_retryCount` — how many times a request has been retried after a 401
+ *   response. This prevents infinite retry loops.
  */
 declare module 'axios' {
+  interface AxiosRequestConfig {
+    silent?: boolean;
+  }
   interface InternalAxiosRequestConfig {
     _retryCount?: number;
   }
@@ -238,7 +245,7 @@ client.interceptors.request.use(
     const netState = await NetInfo.fetch();
 
     if (!netState.isConnected) {
-      showErrorToast({ title: translate('errors.no_internet') });
+      if (!config.silent) showErrorToast({ title: translate('errors.no_internet') });
       return Promise.reject(new axios.Cancel('No internet connection'));
     }
 
@@ -376,7 +383,9 @@ client.interceptors.response.use(
     //   - { error: ["msg1", "msg2"] }  or  { errors: ["msg1"] }
     //   - { message: "Something went wrong" }
     //
-    if (error.response?.data) {
+    if (originalRequest?.silent) {
+      // The caller handles (or deliberately ignores) the failure.
+    } else if (error.response?.data) {
       const { error: apiError, errors, message } = error.response.data;
       const errorList = apiError ?? errors;
       const errorMessage = errorList
