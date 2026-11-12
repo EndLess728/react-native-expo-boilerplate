@@ -6,7 +6,15 @@ import {
   registerDeviceForRemoteMessages,
 } from '@react-native-firebase/messaging';
 
-import { getFcmToken, getPermissionState, onTokenRefresh, requestPermission } from '../service';
+import {
+  clearBadge,
+  getBadgeCount,
+  getFcmToken,
+  getPermissionState,
+  onTokenRefresh,
+  requestPermission,
+  setBadgeCount,
+} from '../service';
 
 /**
  * The single file in the app that talks to Firebase and the OS notification
@@ -149,5 +157,33 @@ describe('notification service', () => {
       expect(granted).toBe(false);
       expect(state).not.toBe('granted');
     });
+  });
+});
+
+describe('badge', () => {
+  const setBadge = notifee.setBadgeCount as jest.Mock;
+  const getBadge = notifee.getBadgeCount as jest.Mock;
+
+  it('sets a whole, non-negative count', async () => {
+    await setBadgeCount(3.7);
+    await setBadgeCount(-2);
+
+    expect(setBadge).toHaveBeenNthCalledWith(1, 3);
+    expect(setBadge).toHaveBeenNthCalledWith(2, 0);
+  });
+
+  it('clears to zero', async () => {
+    await clearBadge();
+
+    expect(setBadge).toHaveBeenLastCalledWith(0);
+  });
+
+  // A badge is decoration; nothing should fail because it couldn't be drawn.
+  it('swallows failures', async () => {
+    setBadge.mockRejectedValueOnce(new Error('unsupported launcher'));
+    getBadge.mockRejectedValueOnce(new Error('unsupported launcher'));
+
+    await expect(setBadgeCount(1)).resolves.toBeUndefined();
+    await expect(getBadgeCount()).resolves.toBe(0);
   });
 });

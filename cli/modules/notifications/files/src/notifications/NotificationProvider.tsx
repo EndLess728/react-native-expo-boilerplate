@@ -9,10 +9,11 @@ import React, {
 } from 'react';
 import { AppState } from 'react-native';
 
-import { DEFAULT_CHANNEL_ID } from './config';
+import { CLEAR_BADGE_ON_OPEN, DEFAULT_CHANNEL_ID } from './config';
 import { logNotification } from './log';
 import { canOpenRoute, resolveRoute } from './routing';
 import {
+  clearBadge,
   displayForegroundNotification,
   getFcmToken,
   getInitialPayload,
@@ -112,6 +113,18 @@ export function NotificationProvider({
 
     return () => subscription.remove();
   }, [refreshPermission]);
+
+  // ── Badge, cleared whenever the app is opened (see CLEAR_BADGE_ON_OPEN) ────
+  useEffect(() => {
+    if (!CLEAR_BADGE_ON_OPEN) return;
+
+    void clearBadge();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void clearBadge();
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   // ── Token, once permission actually allows delivery ───────────────────────
   //

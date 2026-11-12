@@ -122,6 +122,18 @@ export const CHANNELS: readonly NotificationChannelConfig[] = [
  */
 export const ANDROID_DISPLAY_STRATEGY: 'fcm-draws' | 'app-draws' = 'fcm-draws';
 
+// ── Badge ────────────────────────────────────────────────────────────────────
+
+/**
+ * Clear the app icon badge whenever the app is opened or brought back to the
+ * front — "opening the app means you've seen it", which is right for most apps.
+ *
+ * Turn it off when the badge is a real count the app keeps in sync itself
+ * (unread messages, pending tasks): call `setBadgeCount(n)` from wherever that
+ * number changes, and have the backend send the same number as `aps.badge`.
+ */
+export const CLEAR_BADGE_ON_OPEN: boolean = true;
+
 // ── Routing ──────────────────────────────────────────────────────────────────
 
 /**

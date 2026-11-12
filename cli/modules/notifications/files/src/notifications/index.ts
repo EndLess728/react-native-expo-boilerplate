@@ -52,11 +52,14 @@ export { default as NotificationPermissionBanner } from './components/Notificati
 export type { ScheduleLocalOptions } from './service';
 export {
   cancelLocalNotifications,
+  clearBadge,
   configureNotifications,
+  getBadgeCount,
   getFcmToken,
   getPermissionState,
   openNotificationSettings,
   scheduleLocalNotifications,
+  setBadgeCount,
 } from './service';
 
 // ── Dev tracing ───────────────────────────────────────────────────────────────
@@ -71,6 +74,7 @@ export type { NotificationChannelConfig, NotificationType } from './config';
 export {
   ANDROID_DISPLAY_STRATEGY,
   CHANNEL_IDS,
+  CLEAR_BADGE_ON_OPEN,
   DEFAULT_CHANNEL_ID,
   NOTIFICATION_TYPES,
   PRIMARY_CHANNEL_ID,

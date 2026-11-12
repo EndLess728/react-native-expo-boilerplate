@@ -401,6 +401,36 @@ export function onForegroundMessage(
   });
 }
 
+// ── Badge ────────────────────────────────────────────────────────────────────
+
+/**
+ * The app icon's badge number. iOS shows exactly this; Android shows it only
+ * on launchers that support numeric badges (most show a dot per notification
+ * on their own, regardless).
+ *
+ * A remote push can also set it, through `aps.badge` in the APNs payload — the
+ * backend's tool for "you have N unread". Failures are logged, never thrown: a
+ * badge is decoration, and nothing should fail because it could not be drawn.
+ */
+export async function setBadgeCount(count: number): Promise<void> {
+  try {
+    await notifee.setBadgeCount(Math.max(0, Math.floor(count)));
+  } catch (error) {
+    logNotification('setBadgeCount FAILED', error);
+  }
+}
+
+export async function getBadgeCount(): Promise<number> {
+  try {
+    return await notifee.getBadgeCount();
+  } catch (error) {
+    logNotification('getBadgeCount FAILED', error);
+    return 0;
+  }
+}
+
+export const clearBadge = (): Promise<void> => setBadgeCount(0);
+
 // ── Dev diagnostics ──────────────────────────────────────────────────────────
 
 /**
