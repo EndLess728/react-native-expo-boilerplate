@@ -32,6 +32,10 @@ The defaults (Expo Router, Zustand, Unistyles, TypeScript) are the most common c
 
 Yes. Set `EXPO_PUBLIC_API_URL`, replace the demo `authenticate()` function in `src/features/auth/api` with your login call, and adjust the pagination helpers in `src/services` if your API doesn't page with `limit` and `skip`. Firebase, Supabase or GraphQL can be added like any other library.
 
+## How do I add push notifications or subscriptions?
+
+From the root of a generated app, run `npx create-expo-boilerplate add notifications` or `npx create-expo-boilerplate add subscriptions`. The CLI writes the module for your app's stack, wires it in and lists what's left, like your Firebase files or RevenueCat keys. See [Adding modules](../../guides/modules/).
+
 ## Does it support the web?
 
 The app runs on the web with `yarn web` (React Native Web is included, and Expo Router handles URLs). The focus is iOS and Android, so test web-specific layouts yourself.

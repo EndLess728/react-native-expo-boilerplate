@@ -16,7 +16,14 @@ yarn type-check        # TypeScript, no output
 
 ## Tests
 
-Tests use **jest-expo** and **React Native Testing Library**. Native modules like MMKV and expo-secure-store are mocked in `jest.setup.ts`, so tests run without a native build. `@env` points to a mock in `__mocks__/`.
+Tests use **jest-expo** and **React Native Testing Library**. Native modules are mocked in `jest.setup.ts`, so tests run without a native build, and components render the way they do in the app:
+
+- **MMKV** (including its hooks, so components that read a stored setting render) and **expo-secure-store**.
+- **Unistyles**, with its official mock plus the app's real light and dark themes, so styled components render (Unistyles apps only).
+- **react-native-safe-area-context**, with its official mock, so screens using `useSafeAreaInsets()` render without a provider.
+- `@env` points to a mock in `__mocks__/`.
+
+Every `expo-*` package is transpiled for Jest, so code that loads the real translations (`initI18n()`) works in tests too.
 
 Examples to copy:
 
@@ -26,8 +33,10 @@ Examples to copy:
 | `src/features/auth/store/__tests__/useUserStore.test.ts` | A Zustand store |
 | `src/services/__tests__/utils.test.ts` | Pagination helpers |
 | `src/shared/utils/__tests__/appLoader.test.ts` | The app loader |
+| `src/shared/components/__tests__/Button.test.tsx` | Rendering a styled component |
+| `src/localization/__tests__/i18n.test.ts` | Loading the real translations |
 
-Redux apps get slice tests, and saga tests if you chose Saga.
+Redux apps get slice tests, and saga tests if you chose Saga. [Modules](../modules/) bring their own tests and add the mocks they need to `jest.setup.ts`.
 
 ```tsx
 import { render, screen } from '@testing-library/react-native';

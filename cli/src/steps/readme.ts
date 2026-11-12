@@ -247,6 +247,21 @@ export function renderReadme(o: ProjectOptions): string {
 
   push(
     '',
+    '## Adding modules',
+    '',
+    'Larger features are added with the CLI that created this app, from the project root. It writes the variant for this stack (recorded in `boilerplate.json`), wires it in, and lists what is left to do:',
+    '',
+    '```bash',
+    'npx create-expo-boilerplate add notifications   # push + local notifications (Firebase Cloud Messaging + NotifyKit)',
+    'npx create-expo-boilerplate add subscriptions   # in-app subscriptions (RevenueCat): paywall, premium gate',
+    'npx create-expo-boilerplate add notifications --dry-run   # list the changes, write nothing',
+    '```',
+    '',
+    'Commit first: it refuses to run on uncommitted changes, so the module lands as one diff you can review.',
+  );
+
+  push(
+    '',
     '## AI assistant skills',
     '',
     '`.skills/` holds task-specific instructions (API hooks, UI, localization) for Claude, Cursor and friends — reference them in prompts, e.g. `@.skills/api-hook-creation.md`.' +

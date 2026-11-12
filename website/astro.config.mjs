@@ -64,6 +64,7 @@ export default defineConfig({
             '- Create an app: `npx create-expo-boilerplate my-app` (also works with `yarn create`, `pnpm create` and `bun create`). Add `--yes` to accept defaults.',
             '- Defaults: Expo Router, Zustand persisted to MMKV, Unistyles 3, TypeScript, ESLint and Husky.',
             '- Always included: TanStack Query v5 with Axios and react-query-kit, React Hook Form with Zod, AES-encrypted MMKV storage with the key in the OS keychain, i18next with English, Spanish and Arabic (RTL), light and dark themes, three environments (development, staging, production) with Zod-validated env vars, EAS build profiles and workflows, Jest with React Native Testing Library, Conventional Commits.',
+            '- Add modules to an existing generated app: `npx create-expo-boilerplate add notifications` (Firebase Cloud Messaging + NotifyKit push and local notifications) and `npx create-expo-boilerplate add subscriptions` (RevenueCat paywall, premium gate and every store state). The module is written for the app\'s stack and wired in.',
             '- Author: Mantu (GitHub EndLess728), a senior React Native and Expo developer.',
           ].join('\n'),
           optionalLinks: [
@@ -101,6 +102,7 @@ export default defineConfig({
           label: 'Guides',
           items: [
             { label: 'Adding a feature', slug: 'guides/adding-a-feature' },
+            { label: 'Adding modules', slug: 'guides/modules' },
             { label: 'Environments', slug: 'guides/environments' },
             { label: 'Local builds & repack', slug: 'guides/local-builds' },
             { label: 'EAS builds & releases', slug: 'guides/eas' },

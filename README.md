@@ -55,6 +55,22 @@ yarn ios:development        # or yarn android:development
 
 The generated app comes with its own README for the stack you picked. The CLI source, how to test every combination, and how publishing works are in [`cli/`](./cli/README.md).
 
+### Add Modules Later
+
+Bigger features ship as modules you add to a generated app when you need them. From the app's root:
+
+```bash
+npx create-expo-boilerplate add notifications   # push + local notifications
+npx create-expo-boilerplate add subscriptions   # in-app subscriptions
+```
+
+| Module | What you get |
+|---|---|
+| `notifications` | Firebase Cloud Messaging + NotifyKit: permission handling with a five-state banner, Android channels, delivery in foreground / background / killed states, allowlisted tap routing (cold start included), token sync to your backend, app icon badge, local scheduling |
+| `subscriptions` | RevenueCat: `useSubscription()` and `requirePremium()`, a premium gate sheet, a paywall built from your current offering, and every store state — grace period, account hold, trial, pause, cancelled, family sharing, lifetime, cross-store, plan changes, pending payments |
+
+`add` writes the variant that matches the app's stack (navigation, styling, language), wires it in, merges its translations and test mocks, and prints what's left (Firebase files, API keys, your user id). It refuses to run on uncommitted changes, builds everything in a staging copy first, and `--dry-run` lists the changes without writing. Each module brings its own README with setup, store configuration and troubleshooting. Details: [docs → Adding modules](https://endless728.github.io/react-native-expo-boilerplate/guides/modules/).
+
 ## Work on This Repo
 
 The repo is itself the template (Expo Router + Zustand + Unistyles + TypeScript). The CLI picks up any change you make here.
@@ -154,6 +170,7 @@ VS Code snippets scaffold the common hooks (`useiq` for an infinite query). For 
 - **Navigation:** `<Link href="/settings">` or `useRouter().push('/settings')`. Auth gating is automatic: `useLogin()` / `useLogout()` switch between the `(auth)` and `(tabs)` groups.
 - **Store:** create it with `createPersistedStore(...)` and add it to `rehydrateStores()` in `src/store/index.ts`, or it won't load its saved state.
 - **Translation:** add the key to `en.json`, `es.json` and `ar.json`, then use `useTranslate()` in components.
+- **Push notifications / subscriptions:** `npx create-expo-boilerplate add notifications` or `add subscriptions` in a generated app — see [Add Modules Later](#add-modules-later).
 
 Worked examples for each are in [docs/architecture.md](docs/architecture.md). [`.skills/`](.skills) has step-by-step guides for AI coding assistants: `api-hook-creation.md`, `ui-creation.md`, `localization.md`.
 

@@ -24,6 +24,7 @@ It comes in two parts:
 | i18n | i18next and react-i18next: English, Spanish, Arabic (RTL) |
 | Testing & quality | jest-expo, React Native Testing Library, ESLint 9, Prettier, Husky, Commitlint |
 | Builds | EAS profiles for three environments, EAS workflows, local repack builds |
+| Add later | Push notifications (Firebase Cloud Messaging + NotifyKit) and in-app subscriptions (RevenueCat), via [`create-expo-boilerplate add`](../../guides/modules/) |
 
 ## Who it's for
 

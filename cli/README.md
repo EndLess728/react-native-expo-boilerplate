@@ -95,7 +95,8 @@ cli/
 │       └── format.ts         # Prettier with the project's .prettierrc
 │   ├── add.ts                # `add <module>`: preflight, staging copy, JS pass, write back
 │   ├── manifest.ts           # boilerplate.json (stack + added modules), detection fallback
-│   └── modules/              # one generator per module, registered in index.ts
+│   └── modules/              # one generator per module, registered in index.ts;
+│                             #   shared.ts: translations merge, AppProviders wrap, nav ref
 ├── overlays/                 # files that differ per option, written in TypeScript
 │   ├── react-navigation/
 │   ├── redux/{common,thunk,saga}/

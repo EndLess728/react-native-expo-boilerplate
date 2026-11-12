@@ -50,6 +50,33 @@ npx create-expo-boilerplate shop --yes --js --no-husky \
   --name "Corner Shop" --bundle-id com.cornershop.app
 ```
 
+## Adding modules later
+
+Run from the root of a generated app:
+
+```bash
+npx create-expo-boilerplate add <module> [options]
+```
+
+| Module | Adds |
+| --- | --- |
+| `notifications` | Push + local notifications (Firebase Cloud Messaging + NotifyKit) |
+| `subscriptions` | In-app subscriptions (RevenueCat): paywall, premium gate, every store state |
+
+| Flag | Effect |
+| --- | --- |
+| `--dry-run` | List the changes, write nothing |
+| `--yes` | Take defaults instead of prompting |
+| `--force` | Run even with uncommitted changes |
+| `--no-install` | Don't install the new dependencies |
+| `--token-endpoint <path>` | notifications: backend endpoint for the push token |
+| `--google-services <path>` / `--google-service-info <path>` | notifications: Firebase files to copy in |
+| `--banner` / `--no-banner` | notifications: permission banner on Settings |
+| `--entitlement <id>` | subscriptions: RevenueCat entitlement id |
+| `--revenuecat-ios-key <key>` / `--revenuecat-android-key <key>` | subscriptions: public SDK keys |
+
+See [Adding modules](../../guides/modules/) for what each module includes and what's left to do after adding it.
+
 ## Naming rules
 
 - The **project name** becomes the npm package name and Expo slug in kebab-case: `My Cool App` becomes `my-cool-app`.
