@@ -60,6 +60,7 @@ npx create-expo-boilerplate add notifications --dry-run   # list what would chan
 | Module | What you get |
 |---|---|
 | `notifications` | Push (Firebase Cloud Messaging) and local notifications via NotifyKit: permission handling with a five-state banner, Android channels, foreground/background/killed delivery, allowlisted tap routing including cold start, token sync to your backend, tests. Docs land in `src/notifications/README.md`. |
+| `subscriptions` | In-app subscriptions via RevenueCat: `useSubscription()` / `requirePremium()`, a premium gate sheet, a full paywall driven by the current offering, and every store state (grace period, account hold, trial, pause, cancelled, family sharing, promotional, lifetime, cross-store, plan changes, pending payments). Docs land in `src/subscription/README.md`. |
 
 `add` reads the stack from `boilerplate.json` (written by every new project; older projects are detected from their files) and writes the variant that fits: Expo Router or React Navigation, Unistyles / StyleSheet / Tailwind, TypeScript or JavaScript. It:
 
@@ -69,6 +70,8 @@ npx create-expo-boilerplate add notifications --dry-run   # list what would chan
 - refuses to add a module twice.
 
 `notifications` flags: `--token-endpoint <path>` (default `devices/push-token`), `--google-services <path>` / `--google-service-info <path>` (Firebase files to copy into `firebase/`; prompted for, and skippable), `--banner` / `--no-banner` (permission banner on Settings), plus the shared `--yes`, `--dry-run`, `--force`, `--no-install`.
+
+`subscriptions` flags: `--entitlement <id>` (default `premium`), `--revenuecat-ios-key <key>` / `--revenuecat-android-key <key>` (public SDK keys; prompted for, and skippable).
 
 ## How it works
 

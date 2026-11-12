@@ -20,6 +20,11 @@ export const VERSIONS = {
   '@react-native-firebase/app': '^27.1.1',
   '@react-native-firebase/messaging': '^27.1.1',
   'react-native-notify-kit': '^10.10.0',
+
+  // `add subscriptions`. Pinned to the 10.x line the module was built and run
+  // against; 11.0 (Oct 2026) is a major and needs its own pass.
+  'react-native-purchases': '^10.16.0',
+  '@gorhom/bottom-sheet': '^5.2.14',
 } as const;
 
 export function pick(...names: (keyof typeof VERSIONS)[]): Record<string, string> {
